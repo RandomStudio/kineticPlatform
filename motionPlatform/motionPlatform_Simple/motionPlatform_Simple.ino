@@ -1,8 +1,7 @@
 /*
   Bare Minimum example for driving rotational platform.
   Based on Watterott example (CC0 licence)
-  Thomas Kaufmanas | Random Studio | 2024
-
+  Thomas Kaufmanas
 */
 
 #include <TMCStepper.h>
