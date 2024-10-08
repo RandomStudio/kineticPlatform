@@ -13,7 +13,8 @@
 #define CS_PIN   10 //CS
 #define MOSI_PIN 11 //SDI/MOSI
 #define MISO_PIN 12 //SDO/MISO
-#define SCK_PIN  13 //CLK/SCK  
+#define SCK_PIN  13 //CLK/SCK 
+ 
 #define R_SENSE   0.075f //Respective to QHV5160 TMC5160 module
 
 TMC5160Stepper tmc = TMC5160Stepper(CS_PIN, R_SENSE);
@@ -38,11 +39,11 @@ void setup()
   digitalWrite(SCK, LOW);
 
   Serial.begin(9600); //init serial port and set baudrate
-  Serial.println("\nRestart ______________");
+  Serial.println("\nRestart ");
 
   tmc.begin();
-  tmc.toff(4); // This might be only for TMC2208
-  tmc.blank_time(24); //And this as well?
+  tmc.toff(4); 
+  tmc.blank_time(24);
   tmc.en_pwm_mode(true); //Enable StealthChop (quiet driving)
   tmc.pwm_autoscale(true); //Some say this is needed?
   tmc.microsteps(1);  //NB - adding 16 microstep resolution breaks?
@@ -51,8 +52,7 @@ void setup()
   digitalWrite(EN_PIN, LOW); //Enable motor
 }
 
-void loop()
-{
+void loop(){
   static uint32_t last_time = 0;
   uint32_t ms = millis();
 
