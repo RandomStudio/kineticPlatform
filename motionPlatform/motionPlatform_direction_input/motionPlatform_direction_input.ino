@@ -1,7 +1,8 @@
 /*
   Bare Minimum example for driving rotational platform.
   Based on Watterott example (CC0 licence)
-  Thomas Kaufmanas
+  Thomas Kaufmanas | Random Studio | 2024
+
 */
 
 #include <TMCStepper.h>
@@ -42,7 +43,7 @@ void setup()
   tmc.begin();
   tmc.toff(4); // This might be only for TMC2208
   tmc.blank_time(24); //And this as well?
-  tmc.en_pwm_mode(false); //Enable StealthChop (quiet driving)
+  tmc.en_pwm_mode(true); //Enable StealthChop (quiet driving)
   tmc.pwm_autoscale(true); //Some say this is needed?
   tmc.microsteps(1);  //NB - adding 16 microstep resolution breaks?
   tmc.rms_current(2000); //Motor runs 2.8A peak ≈ keep it round 2 for good measure.
