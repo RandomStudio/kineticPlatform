@@ -52,17 +52,11 @@ void setup()
   digitalWrite(EN_PIN, LOW); //Enable motor
 }
 
-void loop()
-{
-
-
+void loop(){
   if ((millis() - timer) > 1000) {
     timer = millis();
     diagnostic();
   }
-
-
-
 
   digitalWrite(STEP_PIN, HIGH);
   delayMicroseconds(10);
@@ -70,8 +64,6 @@ void loop()
   delayMicroseconds(10);
 
 } //end of void
-
-
 
 
 void diagnostic() {

@@ -44,8 +44,8 @@ void setup()
   tmc.begin();
   tmc.toff(4); 
   tmc.blank_time(24);
-  tmc.en_pwm_mode(true); //Enable StealthChop (quiet driving)
-  tmc.pwm_autoscale(true); //Some say this is needed?
+  //tmc.en_pwm_mode(true); //Enable StealthChop (quiet driving)
+  //tmc.pwm_autoscale(true); //Some say this is needed?
   tmc.microsteps(1);  //NB - adding 16 microstep resolution breaks?
   tmc.rms_current(2000); //Motor runs 2.8A peak ≈ keep it round 2 for good measure.
 
