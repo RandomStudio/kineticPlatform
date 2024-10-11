@@ -14,7 +14,7 @@
 #define MOSI_PIN 11 //SDI/MOSI
 #define MISO_PIN 12 //SDO/MISO
 #define SCK_PIN  13 //CLK/SCK 
- 
+
 #define R_SENSE   0.075f //Respective to QHV5160 TMC5160 module
 
 TMC5160Stepper tmc = TMC5160Stepper(CS_PIN, R_SENSE);
@@ -42,17 +42,17 @@ void setup()
   Serial.println("\nRestart ");
 
   tmc.begin();
-  tmc.toff(4); 
+  tmc.toff(4);
   tmc.blank_time(24);
   //tmc.en_pwm_mode(true); //Enable StealthChop (quiet driving)
   //tmc.pwm_autoscale(true); //Some say this is needed?
   tmc.microsteps(1);  //NB - adding 16 microstep resolution breaks?
-  tmc.rms_current(2000); //Motor runs 2.8A peak ≈ keep it round 2 for good measure.
+  tmc.rms_current(500); //Motor runs 2.8A peak ≈ keep it round 2 for good measure.
 
   digitalWrite(EN_PIN, LOW); //Enable motor
 }
 
-void loop(){
+void loop() {
   static uint32_t last_time = 0;
   uint32_t ms = millis();
 
@@ -83,9 +83,18 @@ void loop(){
     }
   }
 
-  //make steps
-  digitalWrite(STEP_PIN, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(STEP_PIN, LOW);
-  delayMicroseconds(10);
+
+  static uint32_t last_time2 = 0;
+  uint32_t ms2 = millis();
+
+  if ((ms2 - last_time2) > 100){
+    last_time2 = ms2;
+
+    //make steps
+    digitalWrite(STEP_PIN, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(STEP_PIN, LOW);
+    delayMicroseconds(10);
+  }
+
 }
