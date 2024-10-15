@@ -7,21 +7,20 @@ void setup() {
 
 void loop() {
   if (Serial.available() > 0) {
-    receivedData = Serial.read();
 
 
-    Serial.print("Arduino serial: ");
-    Serial.println(receivedData, DEC);
+    receivedData = Serial.parseInt();
 
-    if (receivedData == 1) {
-      digitalWrite(LED_BUILTIN, HIGH);
-    }
-    else {
-      digitalWrite(LED_BUILTIN, LOW);
+    if (receivedData >= 10) {
+      Serial.println(receivedData);
     }
 
+
+    //Serial.println(receivedData);
+    //Serial.print("\n");
   }
 
-  Serial.println("Hello world");
-  delay(500);
+
+  //Serial.println("hw");
+
 }

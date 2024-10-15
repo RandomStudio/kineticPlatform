@@ -1,6 +1,5 @@
 /*
-  Bare Minimum example for driving rotational platform.
-  Using TMC2208 driver.
+  Bare Minimum example for accelerating rotation platform using TMC2208 driver.
   Thomas Kaufmanas | Random Studio | 2024
 
 */
@@ -14,7 +13,7 @@
 #define EN_PIN_1           5 // Enable
 
 
-#define SW_RX            12 // TMC2208/TMC2224 SoftwareSerial receive pin
+#define SW_RX            12 // TMC2208/TMC2224 SoftwareSerial receive pins
 #define SW_TX            10 // TMC2208/TMC2224 SoftwareSerial transmit pin
 #define DRIVER_ADDRESS 0b00 // TMC2209 Driver address according to MS1 and MS2
 #define R_SENSE 0.11f // Match to your driver

@@ -17,11 +17,9 @@ AS5600 as5600;
 #define SW_TX            10 // TMC2208/TMC2224 SoftwareSerial transmit pin
 #define DRIVER_ADDRESS 0b00 // TMC2209 Driver address according to MS1 and MS2
 #define R_SENSE 0.11f // Match to your driver
-#define MICROSTEPS 1
-#define STEPS_PER_REVOLUTION 200 //this makes it have 16 more steps = 3200 steps in a full spin
 TMC2209Stepper driver(SW_RX, SW_TX, R_SENSE, DRIVER_ADDRESS);
 
-int speed1 = 800;
+int speed1 = 400;
 long timer1 = 0;
 int interval1 = 500;
 int accDir = 0; //0 = down, 1 = up
@@ -30,7 +28,9 @@ int angle = 0;
 int posInput = 50;
 int angleDiff = 0;
 int dir = false;
-int tolerance = 2;
+int tolerance = 5;
+
+int enabled = false;
 
 void setup() {
   pinMode(EN_PIN_1, OUTPUT);
@@ -53,56 +53,40 @@ void setup() {
 
 void loop() {
 
-  getPosition();
+  raw_angle = as5600.readAngle();
+  angle = map(raw_angle, 0, 4095, 0, 360);
 
   if (abs(angle - posInput) > tolerance) {
-    moveMotor();
+    //Find difference, and normalize to locate shortest path
+    angleDiff = posInput - angle;
+    if (angleDiff > 180) {
+      angleDiff -= 360;
+    } else if (angleDiff < -180) {
+      angleDiff += 360;
+    }
+
+    //CHOSE DIRECTION
+    if (angleDiff > 0) {
+      if (!dir) {
+        dir = true;
+        digitalWrite(DIR_PIN_1, HIGH);
+      }
+    } else if (angleDiff < 0) {
+      if (dir) {
+        dir = false;
+        digitalWrite(DIR_PIN_1, LOW);
+      }
+    }
+
+    digitalWrite(EN_PIN_1, LOW);
+    
+    digitalWrite(STEP_PIN_1, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(STEP_PIN_1, LOW);
+    delayMicroseconds(speed1);
+  }
+  else {
+    digitalWrite(EN_PIN_1, HIGH);
   }
 
 } //end of void
-
-
-void getPosition() {
-  raw_angle = as5600.readAngle();
-  angle = map(raw_angle, 0, 4095, 0, 360);
-  /*
-    if (millis() - timer1 > interval1) {
-
-    Serial.print(dir);
-    Serial.print("\t Angle: ");
-    Serial.println(angle);
-
-    timer1 = millis();
-    }
-  */
-}
-
-void moveMotor() {
-  //Find difference, and normalize to locate shortest path
-  angleDiff = posInput - angle;
-  if (angleDiff > 180) {
-    angleDiff -= 360;
-  } else if (angleDiff < -180) {
-    angleDiff += 360;
-  }
-
-  //CHOSE DIRECTION
-  if (angleDiff > 0) {
-    if (!dir) {
-      dir = true;
-      digitalWrite(DIR_PIN_1, HIGH);
-    }
-  } else if (angleDiff < 0) {
-    if (dir) {
-      dir = false;
-      digitalWrite(DIR_PIN_1, LOW);
-    }
-  }
-
-  // Move Motor accordingly
-  digitalWrite(STEP_PIN_1, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(STEP_PIN_1, LOW);
-  delayMicroseconds(speed1);
-
-}

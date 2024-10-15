@@ -1,6 +1,5 @@
 /*
-  Bare Minimum example for driving rotational platform.
-  Based on Watterott example (CC0 licence)
+  Bare Minimum example for moving rotation platform using TMC5160 driver.
   Thomas Kaufmanas | Random Studio | 2024
 
 */
@@ -18,6 +17,9 @@
 #define R_SENSE   0.075f //Respective to QHV5160 TMC5160 module
 
 TMC5160Stepper tmc = TMC5160Stepper(CS_PIN, R_SENSE);
+
+int stepSpeed = 10;
+long timer1 = 0;
 
 void setup()
 {
@@ -52,43 +54,53 @@ void setup()
   digitalWrite(EN_PIN, LOW); //Enable motor
 }
 
+
+
 void loop() {
-  static uint32_t last_time = 0;
-  uint32_t ms = millis();
-
-  if ((ms - last_time) > 1000) //DIAGNOSTICS run
-  {
-    last_time = ms;
-
-    if (tmc.diag0_error()) {
-      Serial.println(F("DIAG0 error"));
-    }
-    if (tmc.ot())         {
-      Serial.println(F("Overtemp."));
-    }
-    if (tmc.otpw())       {
-      Serial.println(F("Overtemp. PW"));
-    }
-    if (tmc.s2ga())       {
-      Serial.println(F("Short to Gnd A"));
-    }
-    if (tmc.s2gb())       {
-      Serial.println(F("Short to Gnd B"));
-    }
-    if (tmc.ola())        {
-      Serial.println(F("Open Load A"));
-    }
-    if (tmc.olb())        {
-      Serial.println(F("Open Load B"));
-    }
+  // Run diagnostics every second
+  if ((millis() - timer1) > 1000) {
+    diagnostics();
+    timer1 = millis();
   }
 
+  //Spin the motor a full rotation, release torque and wait five seconds
+  digitalWrite(EN_PIN, LOW); //Enable motor
 
-    //make steps
+  for (int i = 0; i <= 200; i++) {
     digitalWrite(STEP_PIN, HIGH);
     delayMicroseconds(1);
     digitalWrite(STEP_PIN, LOW);
-    delay(10);
-  
+    delay(stepSpeed);
+  }
 
+  digitalWrite(EN_PIN, HIGH); //Disable
+  delay(5000);
+
+} //End of void
+
+
+
+
+void diagnostics() {
+  if (tmc.diag0_error()) {
+    Serial.println(F("DIAG0 error"));
+  }
+  if (tmc.ot())         {
+    Serial.println(F("Overtemp."));
+  }
+  if (tmc.otpw())       {
+    Serial.println(F("Overtemp. PW"));
+  }
+  if (tmc.s2ga())       {
+    Serial.println(F("Short to Gnd A"));
+  }
+  if (tmc.s2gb())       {
+    Serial.println(F("Short to Gnd B"));
+  }
+  if (tmc.ola())        {
+    Serial.println(F("Open Load A"));
+  }
+  if (tmc.olb())        {
+    Serial.println(F("Open Load B"));
+  }
 }
