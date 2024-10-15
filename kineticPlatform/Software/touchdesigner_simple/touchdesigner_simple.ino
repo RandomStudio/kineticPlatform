@@ -1,4 +1,7 @@
 int receivedData;
+char buffer[5];   //maximum expected length
+int len = 0;
+int vall = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -6,6 +9,8 @@ void setup() {
 }
 
 void loop() {
+
+
   if (Serial.available() > 0) {
 
 
@@ -22,5 +27,4 @@ void loop() {
 
 
   //Serial.println("hw");
-
 }

@@ -30,7 +30,10 @@ int angleDiff = 0;
 int dir = false;
 int tolerance = 5;
 
-int serialPos = false;
+const byte numChars = 32;
+char receivedChars[numChars];
+boolean newData = false;
+
 
 void setup() {
   pinMode(EN_PIN_1, OUTPUT);
@@ -53,15 +56,9 @@ void setup() {
 }
 
 void loop() {
-  if (Serial.available() > 0) {
-    serialPos = Serial.parseInt();
-
-    if (serialPos >= 10) {
-      posInput = map(serialPos, 10, 370, 0, 360);
-      Serial.println(posInput);
-    }
-
-  }
+  
+  recvWithEndMarker();
+  showNewNumber();
 
   raw_angle = as5600.readAngle();
   angle = map(raw_angle, 0, 4095, 0, 360);
@@ -100,3 +97,35 @@ void loop() {
   }
 
 } //end of void
+
+
+void recvWithEndMarker() {
+    static byte ndx = 0;
+    char endMarker = '\n';
+    char rc;
+    
+    if (Serial.available() > 0) {
+        rc = Serial.read();
+
+        if (rc != endMarker) {
+            receivedChars[ndx] = rc;
+            ndx++;
+            if (ndx >= numChars) {
+                ndx = numChars - 1;
+            }
+        }
+        else {
+            receivedChars[ndx] = '\0'; // terminate the string
+            ndx = 0;
+            newData = true;
+        }
+    }
+}
+
+void showNewNumber() {
+    if (newData == true) {
+        posInput = atoi(receivedChars);   // new for this version
+        Serial.println(posInput);     // new for this version
+        newData = false;
+    }
+}
