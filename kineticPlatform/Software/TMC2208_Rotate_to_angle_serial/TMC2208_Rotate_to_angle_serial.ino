@@ -56,12 +56,12 @@ void setup() {
 }
 
 void loop() {
-  
+
   recvWithEndMarker();
   showNewNumber();
 
   raw_angle = as5600.readAngle();
-  angle = map(raw_angle, 0, 4095, 0, 360);
+  angle = mapf(raw_angle, 0, 4095, 0, 360);
   //Serial.println(angle);
 
   if (abs(angle - posInput) > tolerance) {
@@ -72,7 +72,6 @@ void loop() {
     } else if (angleDiff < -180) {
       angleDiff += 360;
     }
-
 
     //CHOSE DIRECTION
     if (angleDiff > 0) {
@@ -102,32 +101,36 @@ void loop() {
 
 
 void recvWithEndMarker() {
-    static byte ndx = 0;
-    char endMarker = '\n';
-    char rc;
-    
-    if (Serial.available() > 0) {
-        rc = Serial.read();
+  static byte ndx = 0;
+  char endMarker = '\n';
+  char rc;
 
-        if (rc != endMarker) {
-            receivedChars[ndx] = rc;
-            ndx++;
-            if (ndx >= numChars) {
-                ndx = numChars - 1;
-            }
-        }
-        else {
-            receivedChars[ndx] = '\0'; // terminate the string
-            ndx = 0;
-            newData = true;
-        }
+  if (Serial.available() > 0) {
+    rc = Serial.read();
+
+    if (rc != endMarker) {
+      receivedChars[ndx] = rc;
+      ndx++;
+      if (ndx >= numChars) {
+        ndx = numChars - 1;
+      }
     }
+    else {
+      receivedChars[ndx] = '\0'; // terminate the string
+      ndx = 0;
+      newData = true;
+    }
+  }
 }
 
 void showNewNumber() {
-    if (newData == true) {
-        posInput = atof(receivedChars);   
-        //Serial.println(posInput);
-        newData = false;
-    }
+  if (newData == true) {
+    posInput = atof(receivedChars);
+    //Serial.println(posInput);
+    newData = false;
+  }
+}
+
+float mapf(float x, float in_min, float in_max, float out_min, float out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
