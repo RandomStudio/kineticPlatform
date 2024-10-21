@@ -19,16 +19,16 @@ AS5600 as5600;
 #define R_SENSE 0.11f // Match to your driver
 TMC2209Stepper driver(SW_RX, SW_TX, R_SENSE, DRIVER_ADDRESS);
 
-int speed1 = 400;
+int speed1 = 300;
 long timer1 = 0;
 int interval1 = 500;
 int accDir = 0; //0 = down, 1 = up
-int raw_angle = 0;
-int angle = 0;
-int posInput = 0;
-int angleDiff = 0;
+float raw_angle = 0;
+float angle = 0;
+float posInput = 180;
+float angleDiff = 0;
 int dir = false;
-int tolerance = 5;
+float tolerance = 1;
 
 const byte numChars = 32;
 char receivedChars[numChars];
@@ -62,6 +62,7 @@ void loop() {
 
   raw_angle = as5600.readAngle();
   angle = map(raw_angle, 0, 4095, 0, 360);
+  //Serial.println(angle);
 
   if (abs(angle - posInput) > tolerance) {
     //Find difference, and normalize to locate shortest path
@@ -71,6 +72,7 @@ void loop() {
     } else if (angleDiff < -180) {
       angleDiff += 360;
     }
+
 
     //CHOSE DIRECTION
     if (angleDiff > 0) {
@@ -124,8 +126,8 @@ void recvWithEndMarker() {
 
 void showNewNumber() {
     if (newData == true) {
-        posInput = atoi(receivedChars);   // new for this version
-        Serial.println(posInput);     // new for this version
+        posInput = atof(receivedChars);   
+        //Serial.println(posInput);
         newData = false;
     }
 }
