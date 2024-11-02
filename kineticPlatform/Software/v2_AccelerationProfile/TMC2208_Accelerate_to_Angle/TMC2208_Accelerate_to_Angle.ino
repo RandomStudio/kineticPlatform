@@ -13,10 +13,10 @@ AS5600 as5600;
 #define STEP_PIN_1 4  // Step
 #define EN_PIN_1 5    // Enable
 
-#define SW_RX 12             
-#define SW_TX 10             
-#define DRIVER_ADDRESS 0b00  
-#define R_SENSE 0.11f        // TMC2208
+#define SW_RX 12
+#define SW_TX 10
+#define DRIVER_ADDRESS 0b00
+#define R_SENSE 0.11f  // TMC2208
 //TMC2209Stepper driver(SW_RX, SW_TX, R_SENSE, DRIVER_ADDRESS);
 TMC2208Stepper driver(SW_RX, SW_TX, R_SENSE);
 
@@ -30,7 +30,7 @@ int interval1 = 500;
 int accDir = 0;  //0 = down, 1 = up
 float raw_angle = 0;
 float angle = 0;
-float posInput = 180;    //180 is default
+float posInput = 180;  //180 is default
 float angleDiff = 0;
 int dir = false;
 float tolerance = 1;
@@ -39,6 +39,8 @@ const byte numChars = 32;
 char receivedChars[numChars];
 boolean newData = false;
 
+#include <AccelStepper.h>
+AccelStepper stepper = AccelStepper(stepper.DRIVER, STEP_PIN_1, DIR_PIN_1);
 
 void setup() {
   pinMode(EN_PIN_1, OUTPUT);
@@ -58,6 +60,12 @@ void setup() {
   driver.rms_current(1200);  // Set motor RMS current
   //driver.en_pwm_mode(true); //Enable StealthChop (quiet driving)
   driver.pwm_autoscale(true);  // Needed for stealthChop
+
+  stepper.setMaxSpeed(1000);
+  stepper.setAcceleration(1000);
+  stepper.setEnablePin(EN_PIN_1);
+  stepper.setPinsInverted(false, false, true);
+  stepper.enableOutputs();
 }
 
 void loop() {
@@ -79,13 +87,16 @@ void loop() {
     }
 
     // Adjust speed relative to traveldistance
-
     int a = abs(angleDiff);
+    //Serial.println(a); //For debug only - drastically decreases speeds.
     if (a < 30) {
       accSpeed = map(a, 0, 30, minSpeed, maxSpeed);
     } else {
       accSpeed = maxSpeed;
     }
+
+
+
 
     //CHOSE DIRECTION
     if (angleDiff > 0) {
