@@ -56,7 +56,8 @@ void loop() {
   raw_angle = as5600.readAngle();
 
   angle = map(raw_angle, 0, 4095, 0, 360);
-  Serial.println(angle);
+  Serial.println("checkkkk");
+  Serial.println(raw_angle);
 
   if (abs(angle - posInput) > tolerance) {
     //Find difference, and normalize to locate shortest path

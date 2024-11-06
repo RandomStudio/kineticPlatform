@@ -118,7 +118,6 @@ void loop() {
     digitalWrite(STEP_PIN_1, LOW);
     delayMicroseconds(accSpeed);
   } else {
-    digitalWrite(EN_PIN_1, HIGH);
   }
 
 }  //end of void
