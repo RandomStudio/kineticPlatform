@@ -32,6 +32,7 @@ bool instance = true;
 
 //Rotation and position logics
 int stepsPerRevolution = 9600;  //tmc is at 1/8 microsteps 200*8 = 1600 steps pr motor rotation
+int stepsPerRevolutionHalf = stepsPerRevolution / 2;
 int targetPos = 0;
 int realPosWrap = 0;
 int stepDiff = 0;
@@ -75,7 +76,7 @@ void loop() {
   recvWithEndMarker();
   showNewNumber();
 
-  //Update variables
+  //Find wrapped position, ignoring incremental revolutions
   realPosWrap = stepper.currentPosition() % stepsPerRevolution;
   if (realPosWrap < 0) {
     realPosWrap += stepsPerRevolution;
@@ -84,14 +85,13 @@ void loop() {
   if (abs(realPosWrap - targetPos) > tolerance) {
     //Find difference, and normalize to locate shortest path
     stepDiff = targetPos - realPosWrap;
-    if (stepDiff > 4800) {
-      stepDiff -= 9600;
-    } else if (stepDiff < -4800) {
-      stepDiff += 9600;
+    if (stepDiff > stepsPerRevolutionHalf) {
+      stepDiff -= stepsPerRevolution;
+    } else if (stepDiff < -stepsPerRevolutionHalf) {
+      stepDiff += stepsPerRevolution;
     }
     stepper.moveTo(stepper.currentPosition() + stepDiff);
   }
-
 
   if (stepper.distanceToGo() != 0) {
     digitalWrite(EN_PIN, LOW);
@@ -99,10 +99,6 @@ void loop() {
   } else {
     digitalWrite(EN_PIN, HIGH);
   }
-
-
-
-
 }  //end of void
 
 void recvWithEndMarker() {
@@ -131,13 +127,12 @@ void showNewNumber() {
   if (newData == true) {
     float posInput = atof(receivedChars);
 
-      targetPos = mapf(posInput, 0, 360, 0, stepsPerRevolution);
+      targetPos = mapf(posInput, 10, 370, 0, stepsPerRevolution);
       //Serial.println(posInput);
       newData = false;
     
   }
 }
-
 
 float mapf(float x, float in_min, float in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
