@@ -47,6 +47,7 @@ boolean newData = false;
 //Adjust encZero as needed: +1 moves the point clockwise 1/11th degrees.
 int encPos = 0;
 int encZero = 344;
+int encZeroHalf = (4095 / 2) + encZero;
 
 void setup() {
   SPI.begin();
@@ -55,8 +56,6 @@ void setup() {
     ;
   pinMode(SW_SCK, OUTPUT);
   digitalWrite(SW_SCK, HIGH);
-  digitalWrite(DIR_PIN, LOW);
-
   driver.begin();
   driver.rms_current(1200);
   driver.pwm_autoscale(1);
@@ -79,20 +78,12 @@ void loop() {
   showNewNumber();
 
   //Find wrapped position, ignoring incremental revolutions
-  realPosWrap = stepper.currentPosition() % stepsPerRevolution;
-  if (realPosWrap < 0) {
-    realPosWrap += stepsPerRevolution;
-  }
+  realPosWrap = stepper.currentPosition();
+
 
   if (abs(realPosWrap - targetPos) > tolerance) {
     //Find difference, and normalize to locate shortest path
-    stepDiff = targetPos - realPosWrap;
-    if (stepDiff > stepsPerRevolutionHalf) {
-      stepDiff -= stepsPerRevolution;
-    } else if (stepDiff < -stepsPerRevolutionHalf) {
-      stepDiff += stepsPerRevolution;
-    }
-    stepper.moveTo(stepper.currentPosition() + stepDiff);
+    stepper.moveTo(targetPos);
   }
 
   if (stepper.distanceToGo() != 0) {
@@ -142,8 +133,17 @@ float mapf(float x, float in_min, float in_max, float out_min, float out_max) {
 void resetZero() {
   Serial.println("Zeroing platform......");
   encPos = as5600.readAngle();
+  int encPosWrap = (encPos + encZero) % 4095;
+
+  if (encPosWrap > encZeroHalf){
+  digitalWrite(DIR_PIN, HIGH);
+  } else
+  digitalWrite(DIR_PIN, LOW);
+
   while (encPos != encZero) {
     encPos = as5600.readAngle();
+    //Serial.println(encPos);
+
     digitalWrite(STEP_PIN, HIGH);
     delayMicroseconds(10);
     digitalWrite(STEP_PIN, LOW);
