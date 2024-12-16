@@ -2,16 +2,18 @@
 Kinetic Platform is a modular infrastructure for handling rotational motion of objects. Developed for the living lab @ Random Studio in fall 2024.
 
 ## Contents
-- Archive: Software Code-snippets from developing the Bare Minimum example
-- Other: Production drawings and Data Sheets
-- V1: Bare minimum setup of passing a single lidar position to rotational platform
-- V2: Added acceleration profile (basic shy engagements)
-- V3: Handling multiple position inputs
+- kineticPlatformFinal.toe: Annotated touchdesigner file handling multiple users (from lidar via tether), and controlling multiple platforms. Also contains examples and sketches from specific experiments with the Kinetic Platform.
+- PlatformSoftwareMCU: The final microcontroller code running on the platforms. One version spins continuously, where the second version doesn't cross 0° for setups with cables.
+- Examples: Resetting with encoder, Bare minimum running a motor, receive tether on MCU
+- Archive: Leftover sketches from testing different motor drivers.
+- Ressources: Technical drawings, schematics, photos.
+
 
 ## How to start it
-- Turn on the power supply and set to 24V 2A (Memory 4 might hold it)
+- Turn on the power supply and set to 24V 1.2-4amps (each platform draws at most 1.2A)
 - Launch tether broker (docker), and Lidar scripts (lidar, 2dconsolidation, tracking wiz)
-- Open touchdesigner and connect arduino via the serial node (might need to adjust port, and switch on/off)
+- Open touchdesigner and connect controllers via the serial node (might need to readjust port, and switch on/off)
+- Adjust bias and user-select as needed.
 
 ## Notes on assembled parts and wiring
 **The Physical Platform**
