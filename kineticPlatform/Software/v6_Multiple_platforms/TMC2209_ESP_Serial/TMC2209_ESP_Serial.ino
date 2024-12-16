@@ -44,8 +44,8 @@ void setup() {
   driver.pwm_autoscale(true);
   driver.microsteps(8);
 
-  stepper.setMaxSpeed(1000);
-  stepper.setAcceleration(3000);
+  stepper.setMaxSpeed(4000);
+  stepper.setAcceleration(6000);
   stepper.setEnablePin(EN_PIN);
   stepper.setPinsInverted(false, false, true);
   stepper.enableOutputs();
@@ -57,12 +57,20 @@ void loop() {
   showNewNumber();
 
   //Find wrapped position, ignoring incremental revolutions
-  realPosWrap = stepper.currentPosition();
-
+  realPosWrap = stepper.currentPosition() % stepsPerRevolution;
+  if (realPosWrap < 0) {
+    realPosWrap += stepsPerRevolution;
+  }
 
   if (abs(realPosWrap - targetPos) > tolerance) {
     //Find difference, and normalize to locate shortest path
-    stepper.moveTo(targetPos);
+    stepDiff = targetPos - realPosWrap;
+    if (stepDiff > stepsPerRevolutionHalf) {
+      stepDiff -= stepsPerRevolution;
+    } else if (stepDiff < -stepsPerRevolutionHalf) {
+      stepDiff += stepsPerRevolution;
+    }
+    stepper.moveTo(stepper.currentPosition() + stepDiff);
   }
 
   if (stepper.distanceToGo() != 0) {
@@ -71,8 +79,7 @@ void loop() {
   } else {
     digitalWrite(EN_PIN, HIGH);
   }
-
-}  //End of Void
+}  //end of void
 
 void recvWithEndMarker() {
   static byte ndx = 0;
@@ -105,7 +112,6 @@ void showNewNumber() {
     newData = false;
   }
 }
-
 
 float mapf(float x, float in_min, float in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;

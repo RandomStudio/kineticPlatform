@@ -44,8 +44,8 @@ void setup() {
   driver.pwm_autoscale(true);
   driver.microsteps(8);
 
-  stepper.setMaxSpeed(1000);
-  stepper.setAcceleration(3000);
+  stepper.setMaxSpeed(4000);
+  stepper.setAcceleration(6000);
   stepper.setEnablePin(EN_PIN);
   stepper.setPinsInverted(false, false, true);
   stepper.enableOutputs();

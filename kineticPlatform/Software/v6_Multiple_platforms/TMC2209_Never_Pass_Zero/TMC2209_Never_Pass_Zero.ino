@@ -1,21 +1,28 @@
-#include <WiFi.h>
+/*
+  Bare Minimum example for driving rotational platform.
+  Using TMC2209 driver.
+  Thomas Kaufmanas | Random Studio | 2024
+
+*/
+
 #include <TMCStepper.h>
 #include <AccelStepper.h>
+#include <AS5600.h>
+AS5600 as5600;
 
-//Stepper variables
-#define EN_PIN 5     // Enable
-#define DIR_PIN 18   // Direction
-#define STEP_PIN 19  // Step
+#define EN_PIN 3    // Enable
+#define DIR_PIN 4   // Direction
+#define STEP_PIN 5  // Step
 
-//#define SW_SCK 6  // Software Slave Clock (SCK)
-#define SW_RX 16  // TMC2208/TMC2224 SoftwareSerial receive pin
-#define SW_TX 17  // TMC2208/TMC2224 SoftwareSerial transmit pin
+#define SW_SCK 6  // Software Slave Clock (SCK)
+#define SW_RX 7   // TMC2208/TMC2224 SoftwareSerial receive pin
+#define SW_TX 8   // TMC2208/TMC2224 SoftwareSerial transmit pin
 
 #define R_SENSE 0.11f
 #define DRIVER_ADDRESS 0b00
 
-HardwareSerial tmcSerial(2);
-TMC2209Stepper driver(&tmcSerial, R_SENSE, DRIVER_ADDRESS);
+SoftwareSerial SoftSerial(SW_RX, SW_TX);
+TMC2209Stepper driver(&SoftSerial, R_SENSE, DRIVER_ADDRESS);
 AccelStepper stepper = AccelStepper(stepper.DRIVER, STEP_PIN, DIR_PIN);
 
 //Timer logics
@@ -36,19 +43,33 @@ const byte numChars = 32;
 char receivedChars[numChars];
 boolean newData = false;
 
+//Encoder logics for absolute position.
+//Adjust encZero as needed: +1 moves the point clockwise 1/11th degrees.
+int encPos = 0;
+int encZero = 344;
+int encZeroHalf = (4095 / 2) + encZero;
+
 void setup() {
+  SPI.begin();
   Serial.begin(9600);
-  tmcSerial.begin(115200, SERIAL_8N1, SW_RX, SW_TX);
+  while (!Serial)
+    ;
+  pinMode(SW_SCK, OUTPUT);
+  digitalWrite(SW_SCK, HIGH);
   driver.begin();
   driver.rms_current(1200);
-  driver.pwm_autoscale(true);
-  driver.microsteps(8);
+  driver.pwm_autoscale(1);
 
-  stepper.setMaxSpeed(1000);
-  stepper.setAcceleration(3000);
+  Wire.begin();
+  as5600.setDirection(AS5600_CLOCK_WISE);
+
+  stepper.setMaxSpeed(4000);
+  stepper.setAcceleration(10000);
   stepper.setEnablePin(EN_PIN);
   stepper.setPinsInverted(false, false, true);
   stepper.enableOutputs();
+
+  //resetZero();
 }
 
 void loop() {
@@ -71,8 +92,7 @@ void loop() {
   } else {
     digitalWrite(EN_PIN, HIGH);
   }
-
-}  //End of Void
+}  //end of void
 
 void recvWithEndMarker() {
   static byte ndx = 0;
@@ -106,7 +126,29 @@ void showNewNumber() {
   }
 }
 
-
 float mapf(float x, float in_min, float in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+void resetZero() {
+  Serial.println("Zeroing platform......");
+  encPos = as5600.readAngle();
+  int encPosWrap = (encPos + encZero) % 4095;
+
+  if (encPosWrap > encZeroHalf){
+  digitalWrite(DIR_PIN, HIGH);
+  } else
+  digitalWrite(DIR_PIN, LOW);
+
+  while (encPos != encZero) {
+    encPos = as5600.readAngle();
+    //Serial.println(encPos);
+
+    digitalWrite(STEP_PIN, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(STEP_PIN, LOW);
+    delayMicroseconds(800);
+  }
+  Serial.println("Done! Starting program!");
+  delay(1000);
 }

@@ -55,8 +55,9 @@ void setup() {
 
 void loop() {
 
+
   if (stepper.distanceToGo() == 0) {
-    stepper.move(1600*6);
+    stepper.moveTo(1600*6);
   }
   stepper.run();
   //Serial.println("yes");
