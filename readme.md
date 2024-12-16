@@ -1,7 +1,7 @@
 <img width="989" alt="Wiring" src="https://github.com/RandomStudio/kineticPlatform/blob/main/Ressources/2.png">
 
 # Kinetic Platform
-Kinetic Platform is a modular infrastructure for handling rotational motion of objects. Developed for the living lab @ Random Studio in fall 2024.
+Kinetic Platform is a modular infrastructure for handling rotational motion of objects. Developed for the living lab, Random Studio in collaboration with Thomas Kaufmanas, Fall 2024.
 
 ## Contents
 - kineticPlatformFinal.toe: Annotated touchdesigner file.
