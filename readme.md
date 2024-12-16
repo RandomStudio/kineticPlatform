@@ -37,6 +37,9 @@ Serves as the brain of the current setup. It takes input from Lidar sensors via 
 
 
 <img width="989" alt="Wiring" src="https://github.com/RandomStudio/kineticPlatform/blob/main/Ressources/Wiring%20ESP.png">
+<img width="989" alt="Wiring" src="https://github.com/RandomStudio/kineticPlatform/blob/main/Ressources/Base%20version%20data%20flow.png">
+
+
 
 *Useful Links and further documentation:*
 
