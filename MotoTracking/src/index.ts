@@ -5,7 +5,6 @@ import { SerialPort } from "serialport";
 import { ReadlineParser } from "@serialport/parser-readline";
 import { getLogger } from "log4js";
 import { BROKER_DEFAULTS, decode, InputPlug, TetherAgent } from "tether-agent";
-import { remap } from "@anselan/maprange";
 import { TrackedPoint } from "./types";
 
 const appName = defaults.appName;
@@ -18,6 +17,15 @@ logger.level = config.loglevel;
 logger.info("started with config", config);
 logger.debug("Debug logging enabled; output could be verbose!");
 
+const toDegreees = (radians: number) => (radians * 180) / Math.PI;
+
+const awaitDelay = (ms: number) =>
+  new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, ms);
+  });
+
 const main = async () => {
   // Do some async stuff in here!
 
@@ -28,9 +36,20 @@ const main = async () => {
   const parser = serialport.pipe(new ReadlineParser({ delimiter: "\r\n" }));
   parser.on("data", (ch) => logger.info(`incoming serial: ${ch}`));
 
+  logger.warn(
+    `Please move motor to Zero point. System will start in ${
+      config.waitToZero / 1000
+    }s ...`
+  );
+
+  await awaitDelay(config.waitToZero);
+
   serialport.on("open", () => {
+    logger.warn("Setting zero point!");
     serialport.write(0 + "\n");
   });
+
+  let currentTargetId = 0;
 
   const agent = await TetherAgent.create("trackingToMotor", {
     brokerOptions: BROKER_DEFAULTS.nodeJS,
@@ -42,10 +61,19 @@ const main = async () => {
       const { id, x, y } = u;
       const angleTo = toDegreees(Math.atan2(y, x));
 
-      if (id === 0) {
-        logger.debug({ id, angleTo });
+      if (id === currentTargetId) {
+        logger.debug({ currentTargetId, id, angleTo });
         serialport.write(-angleTo + "\n");
       }
+    }
+  });
+
+  const targetInput = await InputPlug.create(agent, "subjectTargetIds");
+  targetInput.on("message", (payload) => {
+    const m = decode(payload) as number;
+    if (currentTargetId !== m) {
+      logger.info("Setting new target ID:", m);
+      currentTargetId = m;
     }
   });
 
@@ -59,5 +87,3 @@ const main = async () => {
 // ================================================
 // Kick off main process here
 main();
-
-const toDegreees = (radians: number) => (radians * 180) / Math.PI;
