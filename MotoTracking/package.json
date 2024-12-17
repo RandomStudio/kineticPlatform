@@ -1,0 +1,30 @@
+{
+  "name": "app",
+  "version": "0.3.0",
+  "description": "An opinionated NodeJS project template",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc",
+    "postinstall": "npm run build",
+    "start": "npm run build && node dist/index.js",
+    "dev": "npm run build && node dist/index.js --loglevel=debug"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anselan/maprange": "^0.10.0",
+    "log4js": "^6.3.0",
+    "parse-strings-in-object": "^1.6.0",
+    "rc": "^1.2.8",
+    "serialport": "^12.0.0",
+    "tether-agent": "^3.2.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.2",
+    "@types/node": "^14.14.37",
+    "@types/rc": "^1.1.0",
+    "prettier": "^2.2.1",
+    "typescript": "^5.3.3"
+  }
+}

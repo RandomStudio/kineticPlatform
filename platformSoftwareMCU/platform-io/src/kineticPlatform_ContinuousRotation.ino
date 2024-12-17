@@ -81,7 +81,8 @@ void loop() {
     } else if (stepDiff < -stepsPerRevolutionHalf) {
       stepDiff += stepsPerRevolution;
     }
-    stepper.moveTo(stepper.currentPosition() + stepDiff);
+    // stepper.moveTo(stepper.currentPosition() + stepDiff);
+    stepper.moveTo(targetPos);
   }
 
   if (stepper.distanceToGo() != 0) {
