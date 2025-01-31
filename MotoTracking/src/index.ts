@@ -65,10 +65,37 @@ const main = async () => {
   const trackingInput = await InputPlug.create(agent, "smoothedTrackedPoints");
   trackingInput.on("message", (payload) => {
     const subjects = decode(payload) as TrackedPoint[];
+    let targetSubject = subjects.find((s) => s.id === currentTargetId);
+    if (!targetSubject) {
+      logger.warn(
+        "Could not match on ID; will find closest to current bearing!"
+      );
+      const closest = subjects.reduce<{ id: null | number; deviation: number }>(
+        (acc, u) => {
+          const { bearing } = u;
+          const deviation = Math.abs(bearing - acc.deviation);
+          if (bearing <= acc.deviation) {
+            return { id: u.id, deviation };
+          } else {
+            return { ...acc };
+          }
+        },
+        { id: null, deviation: 180 }
+      );
+      if (closest.id) {
+        currentTargetId = closest.id;
+        logger.debug(
+          "Using closest ID",
+          currentTargetId,
+          "instead of requested"
+        );
+      } else {
+        logger.debug("Could not find any close match");
+      }
+    }
     for (const u of subjects) {
       const { id, x, y, bearing } = u;
-      const angleTo =
-        bearing !== undefined ? -bearing : toDegreees(Math.atan2(y, x));
+      const angleTo = config.flipDirection ? -bearing : bearing;
 
       if (id === currentTargetId) {
         logger.debug({ currentTargetId, id, angleTo });

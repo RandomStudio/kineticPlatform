@@ -6,6 +6,7 @@ const defaults = {
     baudrate: 9600,
   },
   waitToZero: 9000,
+  flipDirection: true,
   testMode: false,
 };
 
