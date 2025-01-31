@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@anselan/maprange": "^0.10.0",
+    "@anselan/maprange": "^0.10.1",
     "log4js": "^6.3.0",
     "parse-strings-in-object": "^1.6.0",
     "rc": "^1.2.8",
